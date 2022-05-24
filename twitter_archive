@@ -1,0 +1,8 @@
+/*
+ twitter_archive
+*/
+
+$intervalDay = 90;
+$list_header = "archive_";
+
+
