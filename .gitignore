@@ -1,2 +1,3 @@
 #gitignore
-config/user.config.json
+config/owners.settings.json
+php.sample
