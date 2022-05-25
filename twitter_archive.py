@@ -8,10 +8,16 @@
 # もし更新があったアカウントがあれば、フォローしなおして、リストから除外する
 #
 
-importjson
+import json
 
-json_file=open('config/app.settings.json','r')
-app = json.load(json_flie)
-json_file=open('config/owners.settings.json','r')
-owners = json.load(json_file)
+file=open('config/app.settings.json','r')
+app = json.load(file)
+file=open('config/owners.settings.json','r')
+owners = json.load(file)
+
+
+print(owners["account"])
+
+#for owner in owners:
+#  print(owner["account"])
 
