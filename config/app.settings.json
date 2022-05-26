@@ -1,4 +1,9 @@
 {
-"intervalDay":90,
-"listHeader":"archive_"
+  "archive":{
+    "interval":"90"
+  },
+  "list":{
+    "header":"archive_",
+    "modeIsPublic":true
+  }
 }
