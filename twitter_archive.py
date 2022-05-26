@@ -14,10 +14,8 @@ file=open('config/app.settings.json','r')
 app = json.load(file)
 file=open('config/owners.settings.json','r')
 owners = json.load(file)
+accounts = owners["accounts"]
 
-
-print(owners["account"])
-
-#for owner in owners:
-#  print(owner["account"])
+for owner in accounts:
+  print(owner["key"])
 
