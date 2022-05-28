@@ -1,3 +1,4 @@
 #gitignore
 config/owners.settings.json
+config/owners.settings.json.dev
 php.sample

@@ -1,0 +1,17 @@
+{
+   "accounts":[ {
+                "screen_name":"tanaka",
+                "TWI_CK":"xxxxxxxxxxxxxxxxxxxxxxxxx",
+                "TWI_CS":"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "TWI_AT":"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "TWI_ATS":"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        },
+        {
+                "screen_name":"sato",
+                "TWI_CK":"*************************",
+                "TWI_CS":"**************************************************",
+                "TWI_AT":"************************************************",
+                "TWI_ATS":"********************************************"
+        }
+]
+}
