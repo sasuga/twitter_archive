@@ -13,6 +13,7 @@ def fileRead(f):
       return config
 
 def twitterauth(CK,CS,AT,ATS):
+    #TODO 例外処理を組み込む
     oauth=OAuth1Session(CK,CS,AT,ATS)
     return oauth
 
@@ -20,3 +21,5 @@ def createlistname(header):
     now = datetime.datetime.now()
     str_now=now.strftime('%Y%m%d')
     return header+str_now
+
+#def findlist(ownerid):
