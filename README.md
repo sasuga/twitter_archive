@@ -11,7 +11,7 @@ twitterのフォローが一杯なのだが、中には更新が無いアカウ�
 
 - n日以内にtweetが無いケースでリスト化する。（default:90日）
 
-- リスト命名は「twi_archive_YYYYMMDD」とする。
+- リスト命名は「archive_YYYYMMDD」とする。
 
 - 複数のtwitterアカウントに対応する。
 
