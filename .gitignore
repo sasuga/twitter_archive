@@ -1,4 +1,5 @@
 #gitignore
 config/owners.settings.json
 config/owners.settings.json.dev
+__pycache__/
 php.sample

@@ -15,32 +15,31 @@
 ##
 
 import json
-import datetime
-from requests_oauthlib import OAuth1Session
+import functions #original
 
-file=open('config/app.settings.json','r')
+file = functions.fileRead('config/app.settings.json')
 app = json.load(file)
-#file=open('config/owners.settings.json','r')
-file=open('config/owners.settings.json.dev','r')
+file = functions.fileRead('config/owners.settings.json')
 owners = json.load(file)
 accounts = owners["accounts"]
 
 for owner in accounts:
-  CK = owner["TWI_CK"]
-  CS = owner["TWI_CS"]
-  AT = owner["TWI_AT"]
-  ATS= owner["TWI_ATS"]
-  oauth=OAuth1Session(CK,CS,AT,ATS)
+    oauth=functions.twitterauth(owner["TWI_CK"] ,
+                                owner["TWI_CS"] ,
+                                owner["TWI_AT"] ,
+                                owner["TWI_ATS"])
+    listname = functions.createlistname(app["list"]["header"])
 
-  now = datetime.datetime.now()
-  str_now=now.strftime('%Y%m%d')
-  params = {"name":app["list"]["header"]+str_now,
-            "mode":app["list"]["mode"],
-            "description":"twitter_archive auto create at "+str_now
-           }
+  #既に同じ名前のリストが無いか確認
 
-  res = oauth.post(app["endpoint"]["create_list"],params)
-  if res.status_code==200:
-    print("OK")
-  else:
-    print("NG")
+
+    params = {  "name":listname,
+                "mode":app["list"]["mode"],
+                "description":"twitter_archive auto create"
+                }
+
+    res = oauth.post(app["endpoint"]["create_list"],params)
+    if res.status_code==200:
+        print("OK")
+    else:
+        print("NG")
