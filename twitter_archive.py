@@ -11,36 +11,34 @@
 #	app.archive.interval
 #	app.list.header
 #	app.list.modeIsPublic
-#       app.list.endpoint.create_list
-#       app.list.endpoint.xxxxxxxxxx
+#       app.list.end_point.create_list
+#       app.list.end_point.xxxxxxxxxx
 ##
 
 import json
 import sys
-import functions #original
+import pprint # 4DEBUG:
 
-file = functions.fileRead('config/app.settings.json')
+from datetime import datetime
+
+import funcs #original
+
+
+file = funcs.file_read('config/app.settings.json')
 app = json.load(file)
-file = functions.fileRead('config/owners.settings.json.dev')
+file = funcs.file_read('config/owners.settings.json.dev')
 owners = json.load(file)
 accounts = owners["accounts"]
 
 for owner in accounts:
 
     #リスト作成処理
-    oauth=functions.twitterauth(owner["TWI_CK"] ,
-                                owner["TWI_CS"] ,
-                                owner["TWI_AT"] ,
-                                owner["TWI_ATS"])
-    listname = functions.createlistname(app["list"]["header"])
+    # TODO: 例外処理を組み込む
+    oauth=funcs.twitter_auth(owner)
+    listname = funcs.create_list_name(app["list"]["header"])
 
-    params = {  "screen_name":owner["screen_name"],
-                "count":app["list"]["count"]}
-
-    #TODO:例外処理を組み込む
-    res = oauth.get(app["endpoint"]["find_list"],params=params)
-
-    if res.status_code==200:
+    res = funcs.lists_read(owner,app,oauth)
+    if funcs.is_response_ok(res):
         #リスト
         has_identical_name=False
         body = json.loads(res.text)
@@ -54,20 +52,19 @@ for owner in accounts:
                         "mode":app["list"]["mode"],
                         "description":"twitter_archive auto create"
                         }
-            #TODO 例外処理を組み込む
-            res = oauth.post(app["endpoint"]["create_list"],params)
+            # TODO: 例外処理を組み込む
+            res = oauth.post(app["end_point"]["create_list"],params)
             if res.status_code!=200:
-                sys.exit()
-    else:
-
-        sys.exit()
+                sys.exit("強制終了：エラーコード："+str(res.status_code))
 
     #フォロー一覧取得処理
+    # TODO: 良い感じにリファクタリングしたい
     params = {  "screen_name":owner["screen_name"],
                 "count":app["friends"]["count"],
                 "stringify_ids":app["friends"]["stringify_ids"]}
-    res = oauth.get(app["endpoint"]["get_friend_list"],params=params)
-    if res.status_code==200:
+    # TODO: 例外処理を組み込む
+    res = oauth.get(app["end_point"]["get_friend_list"],params=params)
+    if funcs.is_response_ok(res):
         body = json.loads(res.text)
         friends = []
         friends.extend(body["ids"])
@@ -78,21 +75,32 @@ for owner in accounts:
                         "stringify_ids":app["friends"]["stringify_ids"],
                         "cursor":body["next_cursor"]
                     }
-            res = oauth.get(app["endpoint"]["get_friend_list"],params=params)
-            if res.status_code==200:
+            res = oauth.get(app["end_point"]["get_friend_list"],params=params)
+            # TODO: 例外処理を組み込む
+            if funcs.is_response_ok(res):
                 body = json.loads(res.text)
                 friends.extend(body["ids"])
-            else:
-                print("85行強制終了：エラーコード："+str(res.status_code))
-                print("配列の要素数："+str(len(friends)))
-                sys.exit()
-    else:
-        print("89行強制終了：エラーコード：" + str(res.status_code))
-        sys.exit()
+
 
     #フォロワーの最新のツイートを取得する
-    #for user_id in friends:
+    for user_id in friends:
+        params = {  "user_id":user_id,
+                    "count":app["tweet"]["count"],
+                    "exclude_replies":app["tweet"]["exclude_replies"],
+                    "include_rts":app["tweet"]["include_rts"]
+                }
+        # TODO: 例外処理を組み込む
+        res = oauth.get(app["end_point"]["get_friend_tweet"],params=params)
 
+        if funcs.is_response_ok(res):
+            body = json.loads(res.text)
 
+            # body["created_at"]のコンバートで失敗している。
+
+            #created_at = datetime.strptime(body["created_at"], '%a %b %d %H:%M:%S %z %Y')
+            #print(created_at)
+            #print(str(body["created_at"]))
+            #print(json.dumps(body, indent=2))
+            sys.exit()
 
 #print(json.dumps(data, indent=2))
