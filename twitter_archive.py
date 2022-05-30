@@ -31,9 +31,7 @@ owners = json.load(file)
 accounts = owners["accounts"]
 
 for owner in accounts:
-
     #リスト作成処理
-    # TODO: 例外処理を組み込む
     oauth=funcs.twitter_auth(owner)
     listname = funcs.create_list_name(app["list"]["header"])
 
