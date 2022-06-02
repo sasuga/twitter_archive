@@ -27,7 +27,7 @@ def create_list_name(header):
     return header+str_now
 
 def is_response_ok(response):
-    if(response.status_code!=200):
+    if response.status_code!=200:
         print("強制終了：エラーコード："+str(response.status_code))
         sys.exit()
     else:
@@ -39,4 +39,15 @@ def lists_read(owner,app,oauth):
     # TODO: 例外処理を組み込む
     return oauth.get(app["end_point"]["find_list"],params=params)
 
+# TODO: 要動作確認
+def api_access(ep,type,auth,params):
+    if type=="GET":
+        response = auth.get(ep,params=params)
+    else:
+        response = auth.post(ep,params=params)
+
+    if response.status_code==200:
+        return json.loads(respons.text)
+    else:
+        return False
 #def findlist(ownerid):
