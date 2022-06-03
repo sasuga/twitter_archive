@@ -1,9 +1,9 @@
 {
   "archive":{
-    "interval":"90"
+    "interval":90
   },
   "list":{
-    "header":"archive_",
+    "name":"friend_archives",
     "mode":"public",
     "count":50
   },

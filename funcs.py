@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import datetime
+#import datetime
 import sys
 from requests_oauthlib import OAuth1Session
 
@@ -21,10 +21,10 @@ def twitter_auth(owner):
                         owner["TWI_ATS"])
     return oauth
 
-def create_list_name(header):
-    now = datetime.datetime.now()
-    str_now=now.strftime('%Y%m%d')
-    return header+str_now
+#def create_list_name(header):
+    #now = datetime.datetime.now()
+    #str_now=now.strftime('%Y%m%d')
+    #return header+str_now
 
 def is_response_ok(response):
     if response.status_code!=200:
@@ -50,4 +50,6 @@ def api_access(ep,type,auth,params):
         return json.loads(respons.text)
     else:
         return False
-#def findlist(ownerid):
+
+def archive_friend(app , owners , users_id):
+    return "ok"

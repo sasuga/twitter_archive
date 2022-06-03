@@ -18,11 +18,9 @@
 import json
 import sys
 import pprint # 4DEBUG:
-
-from datetime import datetime
-
+import time
+from datetime import datetime,timedelta
 import funcs #original
-
 
 file = funcs.file_read('config/app.settings.json')
 app = json.load(file)
@@ -33,7 +31,7 @@ accounts = owners["accounts"]
 for owner in accounts:
     #リスト作成処理
     oauth=funcs.twitter_auth(owner)
-    listname = funcs.create_list_name(app["list"]["header"])
+    listname = app["list"]["name"]
 
     res = funcs.lists_read(owner,app,oauth)
     if funcs.is_response_ok(res):
@@ -48,7 +46,7 @@ for owner in accounts:
         if has_identical_name==False:
             params = {  "name":listname,
                         "mode":app["list"]["mode"],
-                        "description":"twitter_archive auto create"
+                        "description":"twitter_archives auto create"
                         }
             # TODO: 例外処理を組み込む
             res = oauth.post(app["end_point"]["create_list"],params)
@@ -68,11 +66,7 @@ for owner in accounts:
         friends.extend(body["ids"])
 
         while body['next_cursor'] != 0:
-            params = {  "screen_name":owner["screen_name"],
-                        "count":app["friends"]["count"],
-                        "stringify_ids":app["friends"]["stringify_ids"],
-                        "cursor":body["next_cursor"]
-                    }
+            params["cursor"] = body["next_cursor"]
             res = oauth.get(app["end_point"]["get_friend_list"],params=params)
             # TODO: 例外処理を組み込む
             if funcs.is_response_ok(res):
@@ -92,13 +86,11 @@ for owner in accounts:
 
         if funcs.is_response_ok(res):
             body = json.loads(res.text)
+            struct_time = time.strptime(body[0]["created_at"], '%a %b %d %H:%M:%S +0000 %Y')
+            tw_dt = datetime(*struct_time[:6])
 
-            # body["created_at"]のコンバートで失敗している。
-
-            #created_at = datetime.strptime(body["created_at"], '%a %b %d %H:%M:%S %z %Y')
-            #print(created_at)
-            #print(str(body["created_at"]))
-            #print(json.dumps(body, indent=2))
+            if datetime.now() > tw_dt + timedelta(days=90):
+                print(funcs.archive_friend(app,owners,user_id))
             sys.exit()
 
 #print(json.dumps(data, indent=2))
