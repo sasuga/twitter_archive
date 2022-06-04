@@ -73,6 +73,7 @@ for owner in accounts:
         # TODO: 例外処理を組み込む
         res = oauth.get(app["end_point"]["get_friend_tweet"], params=params)
 
+
         if funcs.is_response_ok(res):
             body = json.loads(res.text)
             if len(body) == 0:

@@ -90,6 +90,7 @@ def archive_friend(app, owners, user_id, list_id,oauth):
 
 
 
+
 def un_archive_friend(app, owners, user_id, list_id,oauth):
     # フォローする
     params = {"user_id": user_id,
