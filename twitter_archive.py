@@ -21,9 +21,6 @@ file = funcs.file_read('config/owners.settings.json.dev')
 owners = json.load(file)
 accounts = owners["accounts"]
 
-counter = 0
-archive_count = 0
-
 for owner in accounts:
     # リスト作成処理
     oauth = funcs.twitter_auth(owner)
@@ -39,7 +36,7 @@ for owner in accounts:
         for i, listlist in enumerate(body):
             if listlist["name"] == listname:
                 list_id = listlist["id"]
-        if list_id==0:
+        if list_id == 0:
             list_id = funcs.create_list(listname, app, oauth)
 
     # フォロー一覧取得処理
@@ -63,6 +60,8 @@ for owner in accounts:
                 friends.extend(body["ids"])
 
     # フォロワーの最新のツイートを取得する
+    counter = 0
+    archive_count = 0
     for user_id in friends:
         # print(user_id)
         counter += 1
@@ -76,25 +75,16 @@ for owner in accounts:
 
         if funcs.is_response_ok(res):
             body = json.loads(res.text)
-
-            #最新のツイート取得が怪しい。
-            #ほとんど中に入っていかないのではないか。
-            #if 0 in body:
-            struct_time = time.strptime(body[0]["created_at"], '%a %b %d %H:%M:%S +0000 %Y')
-            last_tw_dt = datetime(*struct_time[:6])
-
-            print("最新のツイート、現在の時刻、足しこんだ時刻")
-            print(last_tw_dt)
-            print(datetime.now())
-            print(last_tw_dt + timedelta(days=90))
-            sys.exit()
-
-            if datetime.now() > last_tw_dt + timedelta(days=90):
+            if len(body) == 0:
                 archive_count += 1
-                funcs.archive_friend(app, owners, user_id,list_id)
-            #else:
-            archive_count += 1
-            funcs.archive_friend(app, owners, user_id,list_id)
+                funcs.archive_friend(app, owners, user_id, list_id,oauth)
+            else:
+                struct_time = time.strptime(
+                    body[0]["created_at"], '%a %b %d %H:%M:%S +0000 %Y')
+                last_tw_dt = datetime(*struct_time[:6])
+                if datetime.now() > last_tw_dt + timedelta(days=90):
+                    archive_count += 1
+                    funcs.archive_friend(app, owners, user_id, list_id,oauth)
 
     print("count:" +
           str(counter) +
