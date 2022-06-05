@@ -69,7 +69,7 @@ def create_list(listname, app, oauth):
     return body["id"]
 
 
-def archive_friend(app, owners, user_id, list_id,oauth):
+def archive_friend(app, user_id, list_id, oauth):
 
     # リストに突っ込む
     params = {"list_id": list_id,
@@ -77,41 +77,36 @@ def archive_friend(app, owners, user_id, list_id,oauth):
     # TODO: 例外処理を組み込む
     res = oauth.post(app["end_point"]["put_friend_list"], params=params)
     if res.status_code == API_LIMIT:
-       pause_service()
-    elif res.status_code == API_CORRECT:
-    # TODO : とりあえず全て成功したとみなそう
-      params = {"user_id": user_id}
-    # TODO: 例外処理を組み込む
-    # TODO : とりあえず全て成功したとみなそう
-      res = oauth.post(app["end_point"]["remove_friend"], params=params)
-      if res.status_code != API_CORRECT:
-          if res.status_code == API_LIMIT:
-              pause_service()
+        pause_service()
+    if res.status_code == API_CORRECT:
+        # TODO : とりあえず全て成功したとみなそう
+        params = {"user_id": user_id}
+        # TODO: 例外処理を組み込む
+        # TODO : とりあえず全て成功したとみなそう
+        res = oauth.post(app["end_point"]["remove_friend"], params=params)
+        if res.status_code == API_LIMIT:
+            pause_service()
 
 
-
-
-def un_archive_friend(app, owners, user_id, list_id,oauth):
+def un_archive_friend(app, user_id, list_id, oauth):
     # フォローする
     params = {"user_id": user_id,
               "follow": app["friends"]["follow"]}
     # TODO: 例外処理を組み込む
     res = oauth.post(app["end_point"]["add_friend"], params=params)
-    if res.status_code==API_LIMIT:
+    if res.status_code == API_LIMIT:
         pause_service()
-    elif res.status_code != API_CORRECT:
+    if res.status_code == API_CORRECT:
+        # TODO : とりあえず全て成功したとみなそう
 
-    # TODO : とりあえず全て成功したとみなそう
-
-    # TODO: 例外処理を組み込む
-    # TODO : とりあえず全て成功したとみなそう
-    # リストから外す
-      params = {"user_id": user_id,
-                "list_id": list_id}
-      res = oauth.post(app["end_point"]["remove_friend_list"], params=params)
-      if res.status_code != API_CORRECT:
-          if res.status_code == API_LIMIT:
-              pause_service()
+        # TODO: 例外処理を組み込む
+        # TODO : とりあえず全て成功したとみなそう
+        # リストから外す
+        params = {"user_id": user_id,
+                  "list_id": list_id}
+        res = oauth.post(app["end_point"]["remove_friend_list"], params=params)
+        if res.status_code == API_LIMIT:
+            pause_service()
 
 
 def pause_service():

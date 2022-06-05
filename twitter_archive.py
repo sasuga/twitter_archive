@@ -3,9 +3,7 @@
 # *リストを作成する
 # *twitterアカウントのフォロー一覧を取得する
 # *取得した一覧の最新のツイートのタイムスタンプを取得する
-# *更新が無いアカウントをRリストに登録し、フォローを外す
-# *リスト一覧を取得する
-# *命名規則にあうリストがあれば、そのリストの中を検索する
+# *更新が無いアカウントをリストに登録し、フォローを外す
 # *もし更新があったアカウントがあれば、フォローしなおして、リストから除外する
 
 import json
@@ -72,20 +70,42 @@ for owner in accounts:
                   }
         # TODO: 例外処理を組み込む
         res = oauth.get(app["end_point"]["get_friend_tweet"], params=params)
-
-
         if funcs.is_response_ok(res):
             body = json.loads(res.text)
             if len(body) == 0:
                 archive_count += 1
-                funcs.archive_friend(app, owners, user_id, list_id,oauth)
+                funcs.archive_friend(app, user_id, list_id, oauth)
             else:
                 struct_time = time.strptime(
                     body[0]["created_at"], '%a %b %d %H:%M:%S +0000 %Y')
                 last_tw_dt = datetime(*struct_time[:6])
-                if datetime.now() > last_tw_dt + timedelta(days=90):
+                if datetime.now() > last_tw_dt + timedelta(days=app["archive"]["interval"]):
                     archive_count += 1
-                    funcs.archive_friend(app, owners, user_id, list_id,oauth)
+                    funcs.archive_friend(app, user_id, list_id, oauth)
+
+    # リストのタイムラインを取得する
+    params = {
+        "list_id": list_id,
+        "count": app["list"]["count"],
+        "include_rts": app["list"]["include_rts"],
+        "include_entities": app["list"]["include_entities"]
+    }
+    res = oauth.get(app["end_point"]["get_list_timeline"], params=params)
+
+    if res.status_code == API_LIMIT:
+        pause_service()
+    if res.status_code == API_CORRECT:
+        body = json.loads(res.text)
+
+        for tweet in body:
+            struct_time = time.strptime(
+                tweet["created_at"], '%a %b %d %H:%M:%S +0000 %Y')
+            last_tw_dt = datetime(*struct_time[:6])
+            if datetime.now() < last_tw_dt + timedelta(days=app["archive"]["interval"]):
+                funcs.un_archive_friend(app, user_id, list_id, oauth)
+            else:
+                break
+
 
     print("count:" +
           str(counter) +

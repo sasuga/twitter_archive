@@ -5,7 +5,9 @@
   "list":{
     "name":"friend_archives",
     "mode":"public",
-    "count":50
+    "count":50,
+    "include_rts":true,
+    "include_entities":true
   },
   "friends":{
     "count":5000,
@@ -25,6 +27,7 @@
     "put_friend_list"   :"https://api.twitter.com/1.1/lists/members/create.json",
     "remove_friend_list":"https://api.twitter.com/1.1/lists/members/destroy.json",
     "add_friend"        :"https://api.twitter.com/1.1/friendships/create.json",
-    "remove_friend"     :"https://api.twitter.com/1.1/friendships/destroy.json"
+    "remove_friend"     :"https://api.twitter.com/1.1/friendships/destroy.json",
+    "get_list_timeline" :"https://api.twitter.com/1.1/lists/statuses.json"
   }
 }
