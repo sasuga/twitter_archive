@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 import sys
 import datetime
+import time
 from time import sleep
 from requests_oauthlib import OAuth1Session
+from datetime import datetime, timedelta
+
 API_LIMIT = 429
 API_CORRECT = 200
 
@@ -27,32 +30,11 @@ def twitter_auth(owner):
     return oauth
 
 
-def is_response_ok(response):
-    if response.status_code != API_CORRECT:
-        if response.status_code == API_LIMIT:
-            pause_service()
-    else:
-        return True
-
-
 def lists_read(owner, app, oauth):
     params = {"screen_name": owner["screen_name"],
               "count": app["list"]["count"]}
     # TODO: 例外処理を組み込む
     return oauth.get(app["end_point"]["find_list"], params=params)
-
-
-# TODO: 要動作確認
-def api_access(ep, type, auth, params):
-    if type == "GET":
-        response = auth.get(ep, params=params)
-    else:
-        response = auth.post(ep, params=params)
-
-    if response.status_code == API_CORRECT:
-        return json.loads(respons.text)
-    else:
-        return False
 
 
 def create_list(listname, app, oauth):
@@ -61,17 +43,18 @@ def create_list(listname, app, oauth):
               "description": "twitter_archives auto create"
               }
     # TODO: 例外処理を組み込む
-    res = oauth.post(app["end_point"]["create_list"], params)
-    if res.status_code != API_CORRECT:
-        if res.status_code == API_LIMIT:
-            pause_service()
-    body = json_loads(res.text)
-    return body["id"]
+    res = oauth.post(app["end_point"]["create_list"], params=params)
+    if res.status_code == API_LIMIT:
+        pause_service()
+    if res.status_code == API_CORRECT:
+        body = json_loads(res.text)
+        return body["id"]
+    else:
+        api_res_error(res)
+    # TODO: リスト作成エラーが起きた時の対処
 
 
 def archive_friend(app, user_id, list_id, oauth):
-
-    # リストに突っ込む
     params = {"list_id": list_id,
               "user_id": user_id}
     # TODO: 例外処理を組み込む
@@ -79,13 +62,17 @@ def archive_friend(app, user_id, list_id, oauth):
     if res.status_code == API_LIMIT:
         pause_service()
     if res.status_code == API_CORRECT:
-        # TODO : とりあえず全て成功したとみなそう
+        # TODO : とりあえず全て成功したとみなす
         params = {"user_id": user_id}
         # TODO: 例外処理を組み込む
         # TODO : とりあえず全て成功したとみなそう
         res = oauth.post(app["end_point"]["remove_friend"], params=params)
         if res.status_code == API_LIMIT:
             pause_service()
+        if res.status_code != API_CORRECT:
+            api_res_error(res)
+    else:
+        api_res_error(res)
 
 
 def un_archive_friend(app, user_id, list_id, oauth):
@@ -97,22 +84,28 @@ def un_archive_friend(app, user_id, list_id, oauth):
     if res.status_code == API_LIMIT:
         pause_service()
     if res.status_code == API_CORRECT:
-        # TODO : とりあえず全て成功したとみなそう
-
         # TODO: 例外処理を組み込む
         # TODO : とりあえず全て成功したとみなそう
-        # リストから外す
         params = {"user_id": user_id,
                   "list_id": list_id}
         res = oauth.post(app["end_point"]["remove_friend_list"], params=params)
         if res.status_code == API_LIMIT:
             pause_service()
+        if res.status_code != API_CORRECT:
+            api_res_error(res)
+    else:
+        api_res_error(res)
 
 
 def pause_service():
-    print("sleep mode start:")
-    print(datetime.datetime.now())
     sleep(60 * 15)
-    print("sleep mode end:")
-    print(datetime.datetime.now())
-    
+
+
+def format_time_stamp(created_at):
+    struct_time = time.strptime(created_at, '%a %b %d %H:%M:%S +0000 %Y')
+    return datetime(*struct_time[:6])
+
+
+def api_res_error(res):
+    print(ys._getframe().f_code.co_name)
+    print("status_code:" + str(res.status_code))
