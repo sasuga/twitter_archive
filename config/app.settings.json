@@ -28,6 +28,7 @@
     "remove_friend_list":"https://api.twitter.com/1.1/lists/members/destroy.json",
     "add_friend"        :"https://api.twitter.com/1.1/friendships/create.json",
     "remove_friend"     :"https://api.twitter.com/1.1/friendships/destroy.json",
-    "get_list_timeline" :"https://api.twitter.com/1.1/lists/statuses.json"
+    "get_list_timeline" :"https://api.twitter.com/1.1/lists/statuses.json",
+    "get_user_profile"  :"https://api.twitter.com/1.1/users/show.json"
   }
 }

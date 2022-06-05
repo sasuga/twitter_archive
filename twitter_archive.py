@@ -11,7 +11,6 @@ counter = 0
 archive_count = 0
 list_id = 0
 friends = []
-listname = app["list"]["name"]
 
 
 def init4owner():
@@ -20,7 +19,6 @@ def init4owner():
     list_id = 0
     friends = []
 
-
 # 設定ファイル読み込み
 file = funcs.file_read('config/app.settings.json')
 app = json.load(file)
@@ -28,6 +26,9 @@ file = funcs.file_read('config/owners.settings.json.dev')
 #file = funcs.file_read('config/owners.settings.json')
 owners = json.load(file)
 accounts = owners["accounts"]
+listname = app["list"]["name"]
+
+
 
 for owner in accounts:
     init4owner()
@@ -48,7 +49,7 @@ for owner in accounts:
         if list_id == 0:
             list_id = funcs.create_list(listname, app, oauth)
     else:
-        funcs.api_res_error(res)
+        funcs.api_res_error(sys._getframe().f_code.co_name,res)
     # フォロー一覧取得処理
     params = {"screen_name": owner["screen_name"],
               "count": app["friends"]["count"],
@@ -71,7 +72,7 @@ for owner in accounts:
                 body = json.loads(res.text)
                 friends.extend(body["ids"])
             else:
-                funcs.api_res_error(res)
+                funcs.api_res_error(sys._getframe().f_code.co_name,res)
     # フォロワーの最新のツイートを取得する
     for user_id in friends:
         counter += 1
@@ -92,10 +93,24 @@ for owner in accounts:
             else:
                 last_tw_dt = funcs.format_time_stamp(body[0]["created_at"])
                 if datetime.now() > last_tw_dt + timedelta(days=app["archive"]["interval"]):
-                    archive_count += 1
-                    funcs.archive_friend(app, user_id, list_id, oauth)
+
+                    params = {
+                        "user_id":user_id
+                    }
+                    res = oauth.get(app["end_point"]["get_user_profile"],params=params)
+                    if res.status_code == funcs.API_LIMIT:
+                        funcs.pause_service()
+                    if res.status_code == funcs.API_CORRECT:
+                        body = json.loads(res.text)
+                        if body["protected"]==False:
+                            archive_count += 1
+                            funcs.archive_friend(app, user_id, list_id, oauth)
+                        else:
+                            funcs.api_res_error(sys._getframe().f_code.co_name,res)
+                    else:
+                        funcs.api_res_error(sys._getframe().f_code.co_name,res)
         else:
-            funcs.api_res_error(res)
+            funcs.api_res_error(sys._getframe().f_code.co_name,res)
 
     # リストのタイムラインを取得する
     params = {
@@ -117,7 +132,7 @@ for owner in accounts:
             else:
                 break
     else:
-        funcs.api_res_error(res)
+        funcs.api_res_error(sys._getframe().f_code.co_name,res)
 
     print("account:" + owner["screen_name"] + "  friends count:" +
           str(counter) + "  archive:" + str(archive_count))

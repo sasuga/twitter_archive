@@ -50,7 +50,7 @@ def create_list(listname, app, oauth):
         body = json_loads(res.text)
         return body["id"]
     else:
-        api_res_error(res)
+        api_res_error(sys._getframe().f_code.co_name,res)
     # TODO: リスト作成エラーが起きた時の対処
 
 
@@ -70,9 +70,9 @@ def archive_friend(app, user_id, list_id, oauth):
         if res.status_code == API_LIMIT:
             pause_service()
         if res.status_code != API_CORRECT:
-            api_res_error(res)
+            api_res_error(sys._getframe().f_code.co_name,res)
     else:
-        api_res_error(res)
+        api_res_error(sys._getframe().f_code.co_name,res)
 
 
 def un_archive_friend(app, user_id, list_id, oauth):
@@ -92,9 +92,9 @@ def un_archive_friend(app, user_id, list_id, oauth):
         if res.status_code == API_LIMIT:
             pause_service()
         if res.status_code != API_CORRECT:
-            api_res_error(res)
+            api_res_error(sys._getframe().f_code.co_name ,res)
     else:
-        api_res_error(res)
+        api_res_error(sys._getframe().f_code.co_name , res)
 
 
 def pause_service():
@@ -106,6 +106,6 @@ def format_time_stamp(created_at):
     return datetime(*struct_time[:6])
 
 
-def api_res_error(res):
-    print(ys._getframe().f_code.co_name)
-    print("status_code:" + str(res.status_code))
+def api_res_error(func , res):
+    #print(sys._getframe().f_code.co_name)
+    print("[warn]function:" +func + " status_code:" + str(res.status_code))
