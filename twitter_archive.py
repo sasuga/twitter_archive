@@ -13,11 +13,24 @@ import time
 from datetime import datetime, timedelta
 import funcs  # original
 
+counter = 0
+archive_count = 0
+list_id = 0
+
+def init4owner():
+    counter = 0
+    archive_count = 0
+    list_id = 0
+
 file = funcs.file_read('config/app.settings.json')
 app = json.load(file)
 file = funcs.file_read('config/owners.settings.json.dev')
 owners = json.load(file)
 accounts = owners["accounts"]
+
+
+
+
 
 for owner in accounts:
     # リスト作成処理
@@ -27,7 +40,6 @@ for owner in accounts:
     res = funcs.lists_read(owner, app, oauth)
     if funcs.is_response_ok(res):
         # リスト
-        list_id = 0
         body = json.loads(res.text)
         body = body["lists"]
 
@@ -58,8 +70,8 @@ for owner in accounts:
                 friends.extend(body["ids"])
 
     # フォロワーの最新のツイートを取得する
-    counter = 0
-    archive_count = 0
+    init4owner()
+
     for user_id in friends:
         # print(user_id)
         counter += 1
@@ -92,9 +104,9 @@ for owner in accounts:
     }
     res = oauth.get(app["end_point"]["get_list_timeline"], params=params)
 
-    if res.status_code == API_LIMIT:
-        pause_service()
-    if res.status_code == API_CORRECT:
+    if res.status_code == funcs.API_LIMIT:
+        funcs.pause_service()
+    if res.status_code == funcs.API_CORRECT:
         body = json.loads(res.text)
 
         for tweet in body:
