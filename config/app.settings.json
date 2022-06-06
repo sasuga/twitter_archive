@@ -4,7 +4,7 @@
   },
   "list":{
     "name":"friend_archives",
-    "mode":"public",
+    "mode":"private",
     "count":50,
     "include_rts":true,
     "include_entities":true

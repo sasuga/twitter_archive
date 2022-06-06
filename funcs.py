@@ -2,13 +2,14 @@
 import sys
 import datetime
 import time
+import pprint
 from time import sleep
 from requests_oauthlib import OAuth1Session
 from datetime import datetime, timedelta
 
 API_LIMIT = 429
 API_CORRECT = 200
-
+API_CANNOT_ADD = 403
 
 def file_read(f):
     try:
@@ -70,7 +71,8 @@ def archive_friend(app, user_id, list_id, oauth):
         if res.status_code == API_LIMIT:
             pause_service()
         if res.status_code != API_CORRECT:
-            api_res_error(sys._getframe().f_code.co_name,res)
+            if res.status_code != API_CANNOT_ADD:
+                api_res_error(sys._getframe().f_code.co_name,res)
     else:
         api_res_error(sys._getframe().f_code.co_name,res)
 
@@ -107,5 +109,5 @@ def format_time_stamp(created_at):
 
 
 def api_res_error(func , res):
-    #print(sys._getframe().f_code.co_name)
-    print("[warn]function:" +func + " status_code:" + str(res.status_code))
+    print("[warn]" +func + " status_code:" + format(res.status_code))
+    print("error_code:" + format(res.text["errors"]["code"]) + " error_msg:" + format(res.text["errors"]["message"]))

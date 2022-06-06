@@ -105,8 +105,8 @@ for owner in accounts:
                         if body["protected"]==False:
                             archive_count += 1
                             funcs.archive_friend(app, user_id, list_id, oauth)
-                        else:
-                            funcs.api_res_error(sys._getframe().f_code.co_name,res)
+                        #else:
+                        #    funcs.api_res_error(sys._getframe().f_code.co_name,res)
                     else:
                         funcs.api_res_error(sys._getframe().f_code.co_name,res)
         else:
