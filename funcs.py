@@ -125,3 +125,12 @@ def format_time_stamp(created_at):
 def api_res_error(func, res):
     print("[warn]" + func + " status_code:" + str(res.status_code))
     #print("error_code:" + format(res.text["errors"]["code"]) + " error_msg:" + format(res.text["errors"]["message"]))
+
+def api_request(res):
+    if res.status_code == API_LIMIT:
+        pause_service()
+    if res.status_code == API_CORRECT:
+        return true
+    else:
+        api_res_error(sys._getframe().f_code.co_name, res)
+        return False
