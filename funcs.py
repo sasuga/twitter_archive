@@ -11,6 +11,7 @@ API_LIMIT = 429
 API_CORRECT = 200
 API_CANNOT_ADD = 403
 
+
 def file_read(f):
     try:
         config = open(f, 'r')
@@ -45,13 +46,14 @@ def create_list(listname, app, oauth):
               }
     # TODO: 例外処理を組み込む
     res = oauth.post(app["end_point"]["create_list"], params=params)
+
     if res.status_code == API_LIMIT:
         pause_service()
     if res.status_code == API_CORRECT:
         body = json_loads(res.text)
         return body["id"]
     else:
-        api_res_error(sys._getframe().f_code.co_name,res)
+        api_res_error(sys._getframe().f_code.co_name, res)
     # TODO: リスト作成エラーが起きた時の対処
 
 
@@ -60,6 +62,9 @@ def archive_friend(app, user_id, list_id, oauth):
               "user_id": user_id}
     # TODO: 例外処理を組み込む
     res = oauth.post(app["end_point"]["put_friend_list"], params=params)
+
+    sleep(3)
+
     if res.status_code == API_LIMIT:
         pause_service()
     if res.status_code == API_CORRECT:
@@ -68,13 +73,16 @@ def archive_friend(app, user_id, list_id, oauth):
         # TODO: 例外処理を組み込む
         # TODO : とりあえず全て成功したとみなそう
         res = oauth.post(app["end_point"]["remove_friend"], params=params)
+
+        sleep(3)
+
         if res.status_code == API_LIMIT:
             pause_service()
         if res.status_code != API_CORRECT:
             if res.status_code != API_CANNOT_ADD:
-                api_res_error(sys._getframe().f_code.co_name,res)
+                api_res_error(sys._getframe().f_code.co_name, res)
     else:
-        api_res_error(sys._getframe().f_code.co_name,res)
+        api_res_error(sys._getframe().f_code.co_name, res)
 
 
 def un_archive_friend(app, user_id, list_id, oauth):
@@ -83,6 +91,9 @@ def un_archive_friend(app, user_id, list_id, oauth):
               "follow": app["friends"]["follow"]}
     # TODO: 例外処理を組み込む
     res = oauth.post(app["end_point"]["add_friend"], params=params)
+
+    sleep(3)
+
     if res.status_code == API_LIMIT:
         pause_service()
     if res.status_code == API_CORRECT:
@@ -91,12 +102,15 @@ def un_archive_friend(app, user_id, list_id, oauth):
         params = {"user_id": user_id,
                   "list_id": list_id}
         res = oauth.post(app["end_point"]["remove_friend_list"], params=params)
+
+        sleep(3)
+
         if res.status_code == API_LIMIT:
             pause_service()
         if res.status_code != API_CORRECT:
-            api_res_error(sys._getframe().f_code.co_name ,res)
+            api_res_error(sys._getframe().f_code.co_name, res)
     else:
-        api_res_error(sys._getframe().f_code.co_name , res)
+        api_res_error(sys._getframe().f_code.co_name, res)
 
 
 def pause_service():
@@ -108,6 +122,6 @@ def format_time_stamp(created_at):
     return datetime(*struct_time[:6])
 
 
-def api_res_error(func , res):
-    print("[warn]" +func + " status_code:" + format(res.status_code))
-    print("error_code:" + format(res.text["errors"]["code"]) + " error_msg:" + format(res.text["errors"]["message"]))
+def api_res_error(func, res):
+    print("[warn]" + func + " status_code:" + str(res.status_code))
+    #print("error_code:" + format(res.text["errors"]["code"]) + " error_msg:" + format(res.text["errors"]["message"]))
