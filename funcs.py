@@ -126,6 +126,7 @@ def api_res_error(func, res):
     print("[warn]" + func + " status_code:" + str(res.status_code))
     #print("error_code:" + format(res.text["errors"]["code"]) + " error_msg:" + format(res.text["errors"]["message"]))
 
+
 def api_request(res):
     if res.status_code == API_LIMIT:
         pause_service()

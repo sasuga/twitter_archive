@@ -85,7 +85,8 @@ for owner in accounts:
         res = oauth.get(app["end_point"]["get_friend_tweet"], params=params)
         if res.status_code == funcs.API_LIMIT:
             funcs.pause_service()
-            res = oauth.get(app["end_point"]["get_friend_tweet"], params=params)
+            res = oauth.get(
+                app["end_point"]["get_friend_tweet"], params=params)
 
         if res.status_code == funcs.API_CORRECT:
             body = json.loads(res.text)
@@ -129,7 +130,7 @@ for owner in accounts:
     if res.status_code == funcs.API_LIMIT:
         funcs.pause_service()
         res = oauth.get(app["end_point"]["get_list_timeline"], params=params)
-        
+
     if res.status_code == funcs.API_CORRECT:
         body = json.loads(res.text)
 
@@ -142,5 +143,5 @@ for owner in accounts:
     else:
         funcs.api_res_error(sys._getframe().f_code.co_name, res)
 
-    #print("account:" + owner["screen_name"] + "  friends count:" +
+    # print("account:" + owner["screen_name"] + "  friends count:" +
     #      str(counter) + "  archive:" + str(archive_count))
