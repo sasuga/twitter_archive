@@ -81,7 +81,7 @@ for owner in accounts:
                   "exclude_replies": app["tweet"]["exclude_replies"],
                   "include_rts": app["tweet"]["include_rts"]
                   }
-        # TODOs: 例外処理を組み込む
+        # TODO: 例外処理を組み込む
         res = oauth.get(app["end_point"]["get_friend_tweet"], params=params)
         if res.status_code == funcs.API_LIMIT:
             funcs.pause_service()

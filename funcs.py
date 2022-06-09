@@ -131,7 +131,7 @@ def api_request(res):
     if res.status_code == API_LIMIT:
         pause_service()
     if res.status_code == API_CORRECT:
-        return true
+        return True
     else:
         api_res_error(sys._getframe().f_code.co_name, res)
         return False
