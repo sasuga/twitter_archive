@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 API_LIMIT = 429
 API_CORRECT = 200
 API_CANNOT_ADD = 403
+API_CANNOT_REMOVE = 400
 
 
 def file_read(f):
@@ -124,15 +125,16 @@ def format_time_stamp(created_at):
 
 
 def api_res_error(func, res):
+    #if res.status_code != API_CANNOT_ADD and res.status_code != API_CANNOT_REMOVE:
     print("[warn]" + func + " status_code:" + str(res.status_code))
-    #print("error_code:" + format(res.text["errors"]["code"]) + " error_msg:" + format(res.text["errors"]["message"]))
+    json_data = res.text["errors"]
+    print("sub_code:" + format(json_data["code"]) + " msg:" + format(json_data["message"]))
 
-
-def api_request(res):
-    if res.status_code == API_LIMIT:
-        pause_service()
-    if res.status_code == API_CORRECT:
-        return True
-    else:
-        api_res_error(sys._getframe().f_code.co_name, res)
-        return False
+# def api_request(res):
+#    if res.status_code == API_LIMIT:
+#        pause_service()
+#    if res.status_code == API_CORRECT:
+#        return True
+#    else:
+#        api_res_error(sys._getframe().f_code.co_name, res)
+#        return False
