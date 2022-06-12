@@ -3,7 +3,7 @@ import sys
 import datetime
 import time
 import pprint
-#import json
+import json
 from time import sleep
 from requests_oauthlib import OAuth1Session
 from datetime import datetime, timedelta
@@ -65,8 +65,6 @@ def archive_friend(app, user_id, list_id, oauth):
     # TODO: 例外処理を組み込む
     res = oauth.post(app["end_point"]["put_friend_list"], params=params)
 
-    sleep(3)
-
     if res.status_code == API_LIMIT:
         pause_service()
     if res.status_code == API_CORRECT:
@@ -75,8 +73,6 @@ def archive_friend(app, user_id, list_id, oauth):
         # TODO: 例外処理を組み込む
         # TODO : とりあえず全て成功したとみなそう
         res = oauth.post(app["end_point"]["remove_friend"], params=params)
-
-        sleep(3)
 
         if res.status_code == API_LIMIT:
             pause_service()
@@ -94,8 +90,6 @@ def un_archive_friend(app, user_id, list_id, oauth):
     # TODO: 例外処理を組み込む
     res = oauth.post(app["end_point"]["add_friend"], params=params)
 
-    sleep(3)
-
     if res.status_code == API_LIMIT:
         pause_service()
     if res.status_code == API_CORRECT:
@@ -104,8 +98,6 @@ def un_archive_friend(app, user_id, list_id, oauth):
         params = {"user_id": user_id,
                   "list_id": list_id}
         res = oauth.post(app["end_point"]["remove_friend_list"], params=params)
-
-        sleep(3)
 
         if res.status_code == API_LIMIT:
             pause_service()
@@ -116,7 +108,9 @@ def un_archive_friend(app, user_id, list_id, oauth):
 
 
 def pause_service():
+    logger.log(10,"sleep.start()")
     sleep(60 * 15)
+    logger.log(10,"sleep.end()")
 
 
 def format_time_stamp(created_at):
@@ -125,16 +119,6 @@ def format_time_stamp(created_at):
 
 
 def api_res_error(func, res):
-    #if res.status_code != API_CANNOT_ADD and res.status_code != API_CANNOT_REMOVE:
-    print("[warn]" + func + " status_code:" + str(res.status_code))
-    json_data = res.text["errors"]
-    print("sub_code:" + format(json_data["code"]) + " msg:" + format(json_data["message"]))
-
-# def api_request(res):
-#    if res.status_code == API_LIMIT:
-#        pause_service()
-#    if res.status_code == API_CORRECT:
-#        return True
-#    else:
-#        api_res_error(sys._getframe().f_code.co_name, res)
-#        return False
+    if res.status_code == API_CANNOT_ADD or res.status_code == API_CANNOT_REMOVE:
+        return
+    logger.logging(30,"module:" + func + " status_code:" + str(res.status_code))
