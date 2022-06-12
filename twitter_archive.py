@@ -2,9 +2,9 @@
 
 import json
 import sys
-# import pprint  # 4DEBUG:
 import time
 from datetime import datetime, timedelta
+
 import funcs  # original
 
 counter = 0
@@ -68,7 +68,7 @@ for owner in accounts:
             # TODO: 例外処理を組み込む
             if res.status_code == funcs.API_LIMIT:
                 funcs.pause_service()
-            if funcs.status_code == funcs.API_CORRECT:
+            if res.status_code == funcs.API_CORRECT:
                 body = json.loads(res.text)
                 friends.extend(body["ids"])
             else:
