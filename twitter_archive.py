@@ -3,7 +3,6 @@
 import json
 import sys
 import time
-import logging
 from datetime import datetime, timedelta
 
 
@@ -14,23 +13,13 @@ archive_count = 0
 list_id = 0
 friends = []
 
-#logging.basicCoinfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
-
-sh = logging.StreamHandler()
-logger.addHandler(sh)
-logger.setLevel(10)
-
-formatter = logging.Formatter('%(asctime)s:%(lineno)d:%(levelname)s:%(message)s')
-sh.setFormatter(formatter)
-
-
 
 def init4owner():
     counter = 0
     archive_count = 0
     list_id = 0
     friends = []
+
 
 # 設定ファイル読み込み
 file = funcs.file_read('config/app.settings.json')
@@ -41,15 +30,10 @@ owners = json.load(file)
 accounts = owners["accounts"]
 listname = app["list"]["name"]
 
-
-logger.log(10,"main.start()")
-
 for owner in accounts:
     init4owner()
     oauth = funcs.twitter_auth(owner)
 
-
-    logger.log(10,"create_list.start()")
     res = funcs.lists_read(owner, app, oauth)
     if res.status_code == funcs.API_LIMIT:
         funcs.pause_service()
@@ -65,9 +49,6 @@ for owner in accounts:
             list_id = funcs.create_list(listname, app, oauth)
     else:
         funcs.api_res_error(sys._getframe().f_code.co_name, res)
-    logger.log(10,"create_list.end()")
-
-    logger.log(10,"get_friend.start()")
     params = {"screen_name": owner["screen_name"],
               "count": app["friends"]["count"],
               "stringify_ids": app["friends"]["stringify_ids"]}
@@ -90,9 +71,6 @@ for owner in accounts:
                 friends.extend(body["ids"])
             else:
                 funcs.api_res_error(sys._getframe().f_code.co_name, res)
-    logger.log(10,"get_friend.end()")
-
-    logger.log(10,"get_friend_last_tweet.start()")
     for user_id in friends:
         counter += 1
         params = {"user_id": user_id,
@@ -137,8 +115,6 @@ for owner in accounts:
                             sys._getframe().f_code.co_name, res)
         else:
             funcs.api_res_error(sys._getframe().f_code.co_name, res)
-    logger.log(10,"get_friend_last_tweet.end()")
-    logger.log(10,"get_list_timeline.start()")
     # リストのタイムラインを取得する
     params = {
         "list_id": list_id,
@@ -162,7 +138,3 @@ for owner in accounts:
                 break
     else:
         funcs.api_res_error(sys._getframe().f_code.co_name, res)
-    logger.log(10,"get_list_timeline.end()")
-
-logger.log(10,"count:" + str(counter) + " archive:" + str(archive_count))
-logger.log(10,"main.end()")

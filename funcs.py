@@ -108,9 +108,7 @@ def un_archive_friend(app, user_id, list_id, oauth):
 
 
 def pause_service():
-    logger.log(10,"sleep.start()")
     sleep(60 * 15)
-    logger.log(10,"sleep.end()")
 
 
 def format_time_stamp(created_at):
@@ -121,4 +119,3 @@ def format_time_stamp(created_at):
 def api_res_error(func, res):
     if res.status_code == API_CANNOT_ADD or res.status_code == API_CANNOT_REMOVE:
         return
-    logger.logging(30,"module:" + func + " status_code:" + str(res.status_code))

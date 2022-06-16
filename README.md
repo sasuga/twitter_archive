@@ -20,5 +20,4 @@
 
 ## Issue
 - logger埋め込み
-- API error 400、403対応
 - リトライ実装
