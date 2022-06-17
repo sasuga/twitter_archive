@@ -1,18 +1,19 @@
 # -*- coding: utf-8 -*-
 
 import json
-import sys
+import sys,pprint
 import time
 from datetime import datetime, timedelta
 
-
 import funcs  # original
+
+
+
 
 counter = 0
 archive_count = 0
 list_id = 0
 friends = []
-
 
 def init4owner():
     counter = 0
@@ -29,6 +30,8 @@ file = funcs.file_read('config/owners.settings.json.dev')
 owners = json.load(file)
 accounts = owners["accounts"]
 listname = app["list"]["name"]
+
+
 
 for owner in accounts:
     init4owner()
