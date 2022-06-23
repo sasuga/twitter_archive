@@ -108,7 +108,9 @@ def un_archive_friend(app, user_id, list_id, oauth):
 
 
 def pause_service():
+    print("pause_service.start()")
     sleep(60 * 15)
+    print("pause_service.end()")
 
 
 def format_time_stamp(created_at):
