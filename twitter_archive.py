@@ -8,19 +8,7 @@ from datetime import datetime, timedelta
 
 import funcs  # original
 
-
-counter = 0
-archive_count = 0
-list_id = 0
-friends = []
-
-
-def init4owner():
-    counter = 0
-    archive_count = 0
-    list_id = 0
-    friends = []
-
+owner_no = 0
 
 print("service.start()")
 
@@ -35,14 +23,22 @@ listname = app["list"]["name"]
 
 print("owners.for.start()")
 for owner in accounts:
-    init4owner()
-    oauth = funcs.twitter_auth(owner)
+    # リファクタリング対象
+    counter = 0  # アカウント毎のフォロー数
+    archive_count = 0  # アカウント毎のアーカイブ対象数
+    un_archive_count = 0  # アカウント毎のアンアーカイブ対象数
+    list_id = 0  # アカウント毎のリストID（表示しない）
+    friends = []  # アカウント毎のフォロー数配列（表示しない）
+    owner_no += 1  # アカウント数
+    error_cnt = 0  # アカウント毎のエラー回数（アーカイブできない、リスト追加できないエラー）
 
-    print("create.list.start()")
+    print("owners.count=" + str(owner_no))
+    oauth = funcs.twitter_auth(owner)
 
     res = funcs.lists_read(owner, app, oauth)
     if res.status_code == funcs.API_LIMIT:
         funcs.pause_service()
+        res = funcs.lists_read(owner, app, oauth)
     if res.status_code == funcs.API_CORRECT:
         # リスト
         body = json.loads(res.text)
@@ -57,18 +53,16 @@ for owner in accounts:
     else:
         funcs.api_res_error(sys._getframe().f_code.co_name, res)
 
-    print("create.list.end()")
-
     params = {"screen_name": owner["screen_name"],
               "count": app["friends"]["count"],
               "stringify_ids": app["friends"]["stringify_ids"]}
     # TODO: 例外処理を組み込む
 
-    print("frend.list.get.start()")
-
     res = oauth.get(app["end_point"]["get_friend_list"], params=params)
     if res.status_code == funcs.API_LIMIT:
         funcs.pause_service()
+        res = oauth.get(app["end_point"]["get_friend_list"], params=params)
+
     if res.status_code == funcs.API_CORRECT:
         body = json.loads(res.text)
         friends.extend(body["ids"])
@@ -79,13 +73,14 @@ for owner in accounts:
             # TODO: 例外処理を組み込む
             if res.status_code == funcs.API_LIMIT:
                 funcs.pause_service()
+                res = oauth.get(
+                    app["end_point"]["get_friend_list"], params=params)
             if res.status_code == funcs.API_CORRECT:
                 body = json.loads(res.text)
                 friends.extend(body["ids"])
             else:
                 funcs.api_res_error(sys._getframe().f_code.co_name, res)
 
-    print("frend.list.get.end()")
     print("frend.status.check.start()")
 
     for user_id in friends:
@@ -106,8 +101,7 @@ for owner in accounts:
         if res.status_code == funcs.API_CORRECT:
             body = json.loads(res.text)
             if len(body) == 0:
-                archive_count += 1
-                funcs.archive_friend(app, user_id, list_id, oauth)
+                funcs.archive_friend(app, user_id, list_id, oauth, error_cnt)
             else:
                 last_tw_dt = funcs.format_time_stamp(body[0]["created_at"])
                 if datetime.now() > last_tw_dt + timedelta(days=app["archive"]["interval"]):
@@ -124,11 +118,9 @@ for owner in accounts:
                     if res.status_code == funcs.API_CORRECT:
                         body = json.loads(res.text)
                         if body["protected"] == False:
-                            archive_count += 1
-                            funcs.archive_friend(app, user_id, list_id, oauth)
-                        else:
-                            funcs.api_res_error(
-                                sys._getframe().f_code.co_name, res)
+                            funcs.archive_friend(
+                                app, user_id, list_id, oauth, error_cnt)
+
                     else:
                         funcs.api_res_error(
                             sys._getframe().f_code.co_name, res)
@@ -156,12 +148,16 @@ for owner in accounts:
         for tweet in body:
             last_tw_dt = funcs.format_time_stamp(tweet["created_at"])
             if datetime.now() < last_tw_dt + timedelta(days=app["archive"]["interval"]):
-                funcs.un_archive_friend(app, user_id, list_id, oauth)
+                funcs.un_archive_friend(
+                    app, user_id, list_id, oauth,  un_archive_count, error_cnt)
             else:
                 break
     else:
         funcs.api_res_error(sys._getframe().f_code.co_name, res)
 
     print("check.list.timeline.end()")
+    funcs.echo_owner_info(counter, archive_count,
+                          un_archive_count, owner_no, error_cnt)
+
 
 print("service.end()")

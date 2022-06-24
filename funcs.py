@@ -51,6 +51,7 @@ def create_list(listname, app, oauth):
 
     if res.status_code == API_LIMIT:
         pause_service()
+        res = oauth.post(app["end_point"]["create_list"], params=params)
     if res.status_code == API_CORRECT:
         body = json_loads(res.text)
         return body["id"]
@@ -59,7 +60,8 @@ def create_list(listname, app, oauth):
     # TODO: リスト作成エラーが起きた時の対処
 
 
-def archive_friend(app, user_id, list_id, oauth):
+def archive_friend(app, user_id, list_id, oauth, archive_count, error_cnt):
+    archive_count += 1
     params = {"list_id": list_id,
               "user_id": user_id}
     # TODO: 例外処理を組み込む
@@ -79,11 +81,15 @@ def archive_friend(app, user_id, list_id, oauth):
         if res.status_code != API_CORRECT:
             if res.status_code != API_CANNOT_ADD:
                 api_res_error(sys._getframe().f_code.co_name, res)
+            else:
+                # 4DEBUG アーカイブできなかったエラー
+                error_cnt += 1
     else:
         api_res_error(sys._getframe().f_code.co_name, res)
 
 
-def un_archive_friend(app, user_id, list_id, oauth):
+def un_archive_friend(app, user_id, list_id, oauth, un_archive_count, error_cnt):
+    un_archive_count += 1
     # フォローする
     params = {"user_id": user_id,
               "follow": app["friends"]["follow"]}
@@ -102,15 +108,18 @@ def un_archive_friend(app, user_id, list_id, oauth):
         if res.status_code == API_LIMIT:
             pause_service()
         if res.status_code != API_CORRECT:
-            api_res_error(sys._getframe().f_code.co_name, res)
+            if res.status_code != API_CANNOT_REMOVE:
+                api_res_error(sys._getframe().f_code.co_name, res)
+            else:
+                error_cnt += 1
     else:
         api_res_error(sys._getframe().f_code.co_name, res)
 
 
 def pause_service():
-    print("pause_service.start()")
+    print("*** sleep.start()")
     sleep(60 * 15)
-    print("pause_service.end()")
+    print("*** sleep.end()")
 
 
 def format_time_stamp(created_at):
@@ -119,5 +128,19 @@ def format_time_stamp(created_at):
 
 
 def api_res_error(func, res):
-    if res.status_code == API_CANNOT_ADD or res.status_code == API_CANNOT_REMOVE:
-        return
+    print(str(res.status_code) + ":" + sys._getframe().f_code.co_name)
+
+
+def echo_owner_info(cnt, archive_cnt, un_archive_cnt, owner_no, err_cnt):
+    # 4DEBUG
+    print("------------------------------")
+    print(str(owner_no) + "人目のユーザアカウント")
+    print("follow:" + str(cnt))
+    print("archive:" + str(archive_cnt))
+    print("un_archive:" + str(un_archive_cnt))
+    print("error_cnt:" + str(err_cnt))
+
+
+"""
+counter, archive_count, un_archive_count, owner_no ,error_cnt
+"""
