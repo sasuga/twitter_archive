@@ -101,7 +101,8 @@ for owner in accounts:
         if res.status_code == funcs.API_CORRECT:
             body = json.loads(res.text)
             if len(body) == 0:
-                funcs.archive_friend(app, user_id, list_id, oauth, error_cnt)
+                archive_count = archive_count + 1
+                funcs.archive_friend(app, user_id, list_id, oauth)
             else:
                 last_tw_dt = funcs.format_time_stamp(body[0]["created_at"])
                 if datetime.now() > last_tw_dt + timedelta(days=app["archive"]["interval"]):
@@ -118,8 +119,9 @@ for owner in accounts:
                     if res.status_code == funcs.API_CORRECT:
                         body = json.loads(res.text)
                         if body["protected"] == False:
+                            archive_count = archive_count+1
                             funcs.archive_friend(
-                                app, user_id, list_id, oauth, error_cnt)
+                                app, user_id, list_id, oauth)
 
                     else:
                         funcs.api_res_error(
@@ -148,14 +150,16 @@ for owner in accounts:
         for tweet in body:
             last_tw_dt = funcs.format_time_stamp(tweet["created_at"])
             if datetime.now() < last_tw_dt + timedelta(days=app["archive"]["interval"]):
+                un_archive_count = un_archive_count + 1
                 funcs.un_archive_friend(
-                    app, user_id, list_id, oauth,  un_archive_count, error_cnt)
+                    app, user_id, list_id, oauth)
             else:
                 break
     else:
         funcs.api_res_error(sys._getframe().f_code.co_name, res)
 
     print("check.list.timeline.end()")
+
     funcs.echo_owner_info(counter, archive_count,
                           un_archive_count, owner_no, error_cnt)
 

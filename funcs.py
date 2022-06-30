@@ -53,6 +53,7 @@ def create_list(listname, app, oauth):
         pause_service()
         res = oauth.post(app["end_point"]["create_list"], params=params)
     if res.status_code == API_CORRECT:
+        pprint.pprint(res)
         body = json_loads(res.text)
         return body["id"]
     else:
@@ -60,44 +61,47 @@ def create_list(listname, app, oauth):
     # TODO: リスト作成エラーが起きた時の対処
 
 
-def archive_friend(app, user_id, list_id, oauth, archive_count, error_cnt):
-    archive_count += 1
+def archive_friend(app, user_id, list_id, oauth):
     params = {"list_id": list_id,
               "user_id": user_id}
     # TODO: 例外処理を組み込む
     res = oauth.post(app["end_point"]["put_friend_list"], params=params)
-
     if res.status_code == API_LIMIT:
         pause_service()
+        res = oauth.post(app["end_point"]["put_friend_list"], params=params)
+
     if res.status_code == API_CORRECT:
-        # TODO : とりあえず全て成功したとみなす
+        # TODO : 例外処理
         params = {"user_id": user_id}
-        # TODO: 例外処理を組み込む
-        # TODO : とりあえず全て成功したとみなそう
         res = oauth.post(app["end_point"]["remove_friend"], params=params)
 
         if res.status_code == API_LIMIT:
             pause_service()
+            res = oauth.post(app["end_point"]["remove_friend"], params=params)
+
         if res.status_code != API_CORRECT:
             if res.status_code != API_CANNOT_ADD:
+                print("line:84")
                 api_res_error(sys._getframe().f_code.co_name, res)
-            else:
-                # 4DEBUG アーカイブできなかったエラー
-                error_cnt += 1
+            # else:
+            #    # 4DEBUG アーカイブできなかったエラー
+            #    error_cnt += 1
     else:
-        api_res_error(sys._getframe().f_code.co_name, res)
+        if res.status_code != API_CANNOT_ADD:
+            print("line:91")
+            api_res_error(sys._getframe().f_code.co_name, res)
 
 
-def un_archive_friend(app, user_id, list_id, oauth, un_archive_count, error_cnt):
-    un_archive_count += 1
+def un_archive_friend(app, user_id, list_id, oauth):
     # フォローする
     params = {"user_id": user_id,
               "follow": app["friends"]["follow"]}
     # TODO: 例外処理を組み込む
     res = oauth.post(app["end_point"]["add_friend"], params=params)
-
     if res.status_code == API_LIMIT:
         pause_service()
+        res = oauth.post(app["end_point"]["add_friend"], params=params)
+
     if res.status_code == API_CORRECT:
         # TODO: 例外処理を組み込む
         # TODO : とりあえず全て成功したとみなそう
@@ -107,13 +111,19 @@ def un_archive_friend(app, user_id, list_id, oauth, un_archive_count, error_cnt)
 
         if res.status_code == API_LIMIT:
             pause_service()
+            res = oauth.post(
+                app["end_point"]["remove_friend_list"], params=params)
+
         if res.status_code != API_CORRECT:
             if res.status_code != API_CANNOT_REMOVE:
+                print("line:118")
                 api_res_error(sys._getframe().f_code.co_name, res)
-            else:
-                error_cnt += 1
+            # else:
+            #    error_cnt += 1
     else:
-        api_res_error(sys._getframe().f_code.co_name, res)
+        if res.status_code != API_CANNOT_REMOVE:
+            print("line:123")
+            api_res_error(sys._getframe().f_code.co_name, res)
 
 
 def pause_service():
@@ -139,8 +149,3 @@ def echo_owner_info(cnt, archive_cnt, un_archive_cnt, owner_no, err_cnt):
     print("archive:" + str(archive_cnt))
     print("un_archive:" + str(un_archive_cnt))
     print("error_cnt:" + str(err_cnt))
-
-
-"""
-counter, archive_count, un_archive_count, owner_no ,error_cnt
-"""
