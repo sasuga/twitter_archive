@@ -81,14 +81,14 @@ def archive_friend(app, user_id, list_id, oauth):
 
         if res.status_code != API_CORRECT:
             if res.status_code != API_CANNOT_ADD:
-                print("line:84")
+                #print("line:84")
                 api_res_error(sys._getframe().f_code.co_name, res)
             # else:
             #    # 4DEBUG アーカイブできなかったエラー
             #    error_cnt += 1
     else:
         if res.status_code != API_CANNOT_ADD:
-            print("line:91")
+            #print("line:91")
             api_res_error(sys._getframe().f_code.co_name, res)
 
 
@@ -116,13 +116,13 @@ def un_archive_friend(app, user_id, list_id, oauth):
 
         if res.status_code != API_CORRECT:
             if res.status_code != API_CANNOT_REMOVE:
-                print("line:118")
+                #print("line:118")
                 api_res_error(sys._getframe().f_code.co_name, res)
             # else:
             #    error_cnt += 1
     else:
         if res.status_code != API_CANNOT_REMOVE:
-            print("line:123")
+            #print("line:123")
             api_res_error(sys._getframe().f_code.co_name, res)
 
 
